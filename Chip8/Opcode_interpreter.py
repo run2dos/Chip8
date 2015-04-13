@@ -1,17 +1,17 @@
 
 def Opcode0(x):
-    if (int(x, 16) & 0x0FF) == 0x0EE:
+    if (int(x) & 0x00FF) == 0x00EE:
       print( '00EE Clear Screen')
-    elif (int(x, 16) & 0x0F0) == 0x0E0:
+    elif (int(x) & 0x00F0) == 0x00E0:
       print( '00E0 Return from a subroutine.')
     else:
-      print( '0NNN Execute machine langage subroutine at address NNN', 'Addr_NNN='+x[1:4])
+      print( '0NNN Execute machine langage subroutine at address NNN', 'Addr_NNN='+GetOpcodeAddressNNN(x))
 
 def Opcode1(x):
-    print('1NNN Jump to address NNN', 'Addr_NNN='+x[1:4])
+    print('1NNN Jump to address NNN', 'Addr_NNN='+GetOpcodeAddressNNN(x))
     
 def Opcode2(x):
-    print('2NNN Execute subroutine starting at address NNN', 'Addr_NNN='+x[1:4])
+    print('2NNN Execute subroutine starting at address NNN', 'Addr_NNN='+GetOpcodeAddressNNN(x))
     
 def Opcode3(x):
     print('3XNN Skip the following instruction if the value of register VX equals NN', 'reg_VX='+x[1], 'value_NN='+x[2:])
@@ -29,26 +29,33 @@ def Opcode7(x):
     print('7XNN Add the value NN to register VX', 'reg_VX='+x[1], 'value_NN='+x[2:])
     
 def Opcode8(x):
-  if (int(x, 16) & 0xF00F) == 0x8000:
-    print(x, '8000')
-  elif (int(x, 16) & 0xF00F) == 0x8001:
-    print(x, '8001')
-  elif (int(x, 16) & 0xF00F) == 0x8002:
-    print(x, '8002')
-  elif (int(x, 16) & 0xF00F) == 0x8003:
-    print(x, '8003')
-  elif (int(x, 16) & 0xF00F) == 0x8004:
-    print(x, '8004')
-  elif (int(x, 16) & 0xF00F) == 0x8005:
-    print(x, '8005')
-  elif (int(x, 16) & 0xF00F) == 0x8006:
-    print(x, '8006')
-  elif (int(x, 16) & 0xF00F) == 0x8007:
-    print(x, '8007')
-  elif (int(x, 16) & 0xF00F) == 0x800E:
-    print(x, '800E')
+  if (int(x) & 0x000F) == 0x0000:
+    print(hex(int(x)), '8000')
+
+  elif (int(x) & 0x000F) == 0x0001:
+    print(hex(int(x)), '8001')
+
+  elif (int(x) & 0x000F) == 0x0002:
+    print(hex(int(x)), '8002')
+
+  elif (int(x) & 0x000F) == 0x0003:
+    print(hex(int(x)), '8003')
+
+  elif (int(x) & 0x000F) == 0x0004:
+    print(hex(int(x)), '8004')
+
+  elif (int(x) & 0x000F) == 0x0005:
+    print(hex(int(x)), '8005')
+
+  elif (int(x) & 0x000F) == 0x0006:
+    print(hex(int(x)), '8006')
+
+  elif (int(x) & 0x000F) == 0x0007:
+    print(hex(int(x)), '8007')
+  elif (int(x) & 0x000F) == 0x000E:
+    print(hex(int(x)), '800E')
   else:
-    print(x, 'Not Handled yet!')
+    print(hex(int(x)), 'Not Handled yet!')
     
 def Opcode9(x):
     print('9XY0 Skip the following instruction if the value of register VX is not equal to the value of register VY', 'reg_VX='+x[1], 'regVY='+x[2])
@@ -95,7 +102,7 @@ def OpcodeF(x):
   else:
     print(x, 'Not Handled yet!')
 
-Opcodes = {0x0000: Opcode0,
+OpcodePrefix = {0x0000: Opcode0,
            0x1000: Opcode1,
            0x2000: Opcode2,
            0x3000: Opcode3,
@@ -112,3 +119,23 @@ Opcodes = {0x0000: Opcode0,
            0xE000: OpcodeE,
            0xF000: OpcodeF
 }
+
+def interpretOpcode(x):
+    if (x & 0xF000) not in OpcodePrefix:
+        OpcodeDoesNotExist()
+    else:
+        OpcodePrefix[x & 0xF000](str(x))
+        # OpcodePrefix[x & 0xF000](str(x))
+
+def OpcodeDoesNotExist():
+    print('This opcode does not exist')
+
+def GetOpcodeAddressNNN(x):
+    return hex(0x0FFF & int(x))
+
+
+def Main():
+    interpretOpcode(0x3522)
+
+if __name__=='__main__':
+    Main()

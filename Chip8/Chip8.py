@@ -1,4 +1,7 @@
+import sys
+sys.path.append('/Users/Hackintosh/Dropbox/Python/Projects/Chip8/Chip8')
 import numpy as np
+from Opcode_interpreter import interpretOpcode
 
 MAX_MEMORY = 4096
 
@@ -27,11 +30,12 @@ class Chip8:
     def run(self):
         # fetch opcode
         opcode = (self.memory[self.pc] << 8) | self.memory[self.pc + 1]
-        print(hex(opcode), self.pc)
+        print(hex(opcode), ': ')
+        interpretOpcode(opcode)
         # decode opcode
 
-        if opcode == 0xFFFF:
-            print('Cha ching')
+
+
             #execute opcode
 
 
@@ -40,11 +44,11 @@ class Chip8:
 
 def Main():
     chip8 = Chip8()
-    z = 0
-    for i in range(len(chip8.memory)):
-        chip8.memory[z] = 0xFF
-        print(hex(chip8.memory[z]))
-        z += 1
+    # z = 0
+    # for i in range(len(chip8.memory)):
+    #     chip8.memory[z] = 0xFF
+    #     print(hex(chip8.memory[z]))
+    #     z += 1
 
     chip8.run()
 
