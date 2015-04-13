@@ -29,21 +29,27 @@ class Chip8:
         opcode = (self.memory[self.pc] << 8) | self.memory[self.pc + 1]
         print(hex(opcode), self.pc)
         # decode opcode
+
+        if opcode == 0xFFFF:
+            print('Cha ching')
             #execute opcode
 
 
 
 
 
+def Main():
+    chip8 = Chip8()
+    z = 0
+    for i in range(len(chip8.memory)):
+        chip8.memory[z] = 0xFF
+        print(hex(chip8.memory[z]))
+        z += 1
 
-chip8 = Chip8()
-z = 0
-for i in range(len(chip8.memory)):
-    chip8.memory[z] = z
-    print(hex(chip8.memory[z]))
-    z += 1
+    chip8.run()
 
-chip8.run()
+    #for x in chip8.stack:
+    #    print(x)
 
-#for x in chip8.stack:
-#    print(x)
+if __name__ == "__main__":
+    Main()
