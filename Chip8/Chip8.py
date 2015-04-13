@@ -20,6 +20,8 @@ class Chip8:
 
         self.keys = np.zeros(16, dtype=np.uint8)
 
+        self.display = np.zeros((64 * 32), dtype=np.uint8)
+
 
 
 
