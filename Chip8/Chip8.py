@@ -1,5 +1,8 @@
-import sys
-sys.path.append('/Users/Hackintosh/Dropbox/Python/Projects/Chip8/Chip8')
+import sys, os
+home = os.getenv("HOME")
+home += "/Dropbox/Python/Projects/Chip8/Chip8/"
+sys.path.append(home)
+
 import numpy as np
 from Opcode_interpreter import interpretOpcode
 
