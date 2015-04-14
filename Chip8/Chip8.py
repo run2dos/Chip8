@@ -10,6 +10,8 @@ MAX_MEMORY = 4096
 
 class Chip8:
 
+    display = np.zeros((64 * 32), dtype=np.uint8)
+
     def __init__(self):
         opcode = np.uint16
 
@@ -27,7 +29,11 @@ class Chip8:
 
         self.keys = np.zeros(16, dtype=np.uint8)
 
-        self.display = np.zeros((64 * 32), dtype=np.uint8)
+
+    @classmethod
+    def get_display(cls):
+        return Chip8.display
+
 
 
     def run(self):
@@ -52,6 +58,8 @@ def Main():
     #     chip8.memory[z] = 0xFF
     #     print(hex(chip8.memory[z]))
     #     z += 1
+    for x in chip8.get_display():
+        print(x)
 
     chip8.run()
 
