@@ -11,7 +11,9 @@ MAX_MEMORY = 4096
 class Chip8:
 
     display = np.zeros((64 * 32), dtype=np.uint8)
-
+    display[1]=1
+    display[5]=1
+    display[96]=1
     def __init__(self):
         opcode = np.uint16
 
@@ -28,6 +30,7 @@ class Chip8:
         self.sound_timer = 0
 
         self.keys = np.zeros(16, dtype=np.uint8)
+
 
 
     @classmethod
