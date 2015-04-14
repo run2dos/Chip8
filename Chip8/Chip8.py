@@ -29,6 +29,8 @@ class Chip8:
 
         self.keys = np.zeros(16, dtype=np.uint8)
 
+        self.needsReDraw = False
+
     @classmethod
     def get_display(cls):
         return Chip8.display
@@ -51,6 +53,12 @@ class Chip8:
 
 
             #execute opcode
+
+    def needsReDrawn(self):
+        return self.needsReDraw
+
+    def removeDrawFlag(self):
+        self.needsReDraw = False
 
 
 
