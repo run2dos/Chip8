@@ -14,6 +14,7 @@ class TextDisplay:
         self.display = self.chip.get_display()
 
     def paint(self):
+        print("               Welcome to the Chip8 Emulator")
         for idx,pixel in enumerate(self.display):
 
             x = (idx % 64)
@@ -23,6 +24,7 @@ class TextDisplay:
                 print()
             else:
                 if pixel == 0:
-                    print(' ', end='')
+                    print('0', end='')
                 else:
                     print('#', end='')
+        print('\n')

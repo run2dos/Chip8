@@ -7,14 +7,18 @@ import numpy as np
 from Chip8 import Chip8
 from Display import TextDisplay
 
+from time import sleep
+
 
 
 def Main():
 
     chip = Chip8()
     test = TextDisplay(chip)
-    test.paint()
-    chip.run()
+    for x in range(30):
+        test.paint()
+        sleep(1)
+    #chip.run()
 
 
 if __name__ == '__main__':
