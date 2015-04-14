@@ -15,9 +15,10 @@ def Main():
 
     chip = Chip8()
     test = TextDisplay(chip)
-    for x in range(30):
-        test.paint()
-        sleep(1)
+    for x in range(64 * 8):
+        chip.display_test(x, 1)
+        test.paint()        
+        sleep(.024)
     #chip.run()
 
 

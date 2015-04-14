@@ -1,10 +1,12 @@
 import sys, os
+
 home = os.getenv("HOME")
 home += "/Dropbox/Python/Projects/Chip8/Chip8/"
 sys.path.append(home)
 
 import numpy as np
 import math
+
 from Chip8 import Chip8
 
 
@@ -12,9 +14,10 @@ class TextDisplay:
     def __init__(self, Chip8):
         self.chip = Chip8
         self.display = self.chip.get_display()
+        self.title = 'Chip 8 interpreter.'
 
     def paint(self):
-        print("               Welcome to the Chip8 Emulator")
+        print("               Welcome to the", self.title)
         for idx,pixel in enumerate(self.display):
 
             x = (idx % 64)
@@ -24,7 +27,7 @@ class TextDisplay:
                 print()
             else:
                 if pixel == 0:
-                    print('0', end='')
+                    print('.', end='')
                 else:
                     print('#', end='')
         print('\n')
