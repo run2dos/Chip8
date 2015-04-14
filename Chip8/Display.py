@@ -14,10 +14,10 @@ class TextDisplay:
     def __init__(self, Chip8):
         self.chip = Chip8
         self.display = self.chip.get_display()
-        self.title = 'Chip 8 interpreter.'
+        self.title = '               Welcome to the Chip 8 interpreter.'
 
     def paint(self):
-        print("               Welcome to the", self.title)
+        print(self.title)
         for idx,pixel in enumerate(self.display):
 
             x = (idx % 64)
