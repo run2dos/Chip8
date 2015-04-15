@@ -60,7 +60,17 @@ class Chip8:
     def removeDrawFlag(self):
         self.needsReDraw = False
 
+    def loadRom(self, romLocation):
+        f = open(romLocation, 'r')
+        rom = f.read()
+        f.close()
+        rome = rom.replace('\n', ' ')
+        romSize = len(rom.split())
+        self.romSize = romSize
+        temp = ''
 
+        for idx, x in enumerate(range(0x200,(0x200 + romSize))):
+            self.memory[x] = rom.split()[idx]
 
 
 
