@@ -16,6 +16,8 @@ class Chip8:
         opcode = np.uint16
 
         self.memory = np.zeros([4096], dtype=np.uint8)
+        self.romSize = np.zeros([0], dtype=np.uint8)
+
         self.pc = 0x200
         self.reg_V = np.zeros(16, dtype=np.uint8)
 
@@ -50,9 +52,12 @@ class Chip8:
         interpretOpcode(opcode)
         # decode opcode
 
-
-
             #execute opcode
+
+
+    def incrementPC(self, inc):
+        self.pc += inc
+
 
     def needsReDrawn(self):
         return self.needsReDraw
@@ -70,8 +75,7 @@ class Chip8:
         temp = ''
 
         for idx, x in enumerate(range(0x200,(0x200 + romSize))):
-            self.memory[x] = rom.split()[idx]
-
+            self.memory[x] = int(rom.split()[idx], 16)
 
 
 def Main():
@@ -81,11 +85,12 @@ def Main():
     #     chip8.memory[z] = 0xFF
     #     print(hex(chip8.memory[z]))
     #     z += 1
-    for x in chip8.get_display():
-        print(x)
-
-    chip8.run()
-
+    # for x in chip8.get_display():
+    #     print(x)
+    chip8.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/Fishie.ch8')
+    for x in range(chip8.romSize):
+        chip8.run()
+        chip8.incrementPC(2)
     #for x in chip8.stack:
     #    print(x)
 

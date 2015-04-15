@@ -16,7 +16,7 @@ class Main(threading.Thread):
 
     chip = Chip8()
     display = TextDisplay(chip)
-    #chip.loadProgram('Fishie.ch8')
+    chip.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/Fishie.ch8')
 
     def run(self):
         #run_thread = threading.Thread(target=cls.chip.run).start()
@@ -26,6 +26,7 @@ class Main(threading.Thread):
                 Main.display.paint()
                 Main.chip.removeDrawFlag()
             sleep(0.016)
+            Main.chip.incrementPC(2)
 
 
 
