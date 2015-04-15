@@ -4,7 +4,7 @@ home += "/Dropbox/Python/Projects/Chip8/Chip8/"
 sys.path.append(home)
 
 import numpy as np
-from Opcode_interpreter import interpretOpcode
+from Opcode_interpreter import interpreter
 
 MAX_MEMORY = 4096
 
@@ -48,8 +48,8 @@ class Chip8:
     def run(self):
         # fetch opcode
         opcode = (self.memory[self.pc] << 8) | self.memory[self.pc + 1]
-        print(hex(opcode), ': ')
-        interpretOpcode(opcode)
+        # print(hex(opcode), ': ', end='')
+        interpreter.interpretOpcode(opcode)
         # decode opcode
 
             #execute opcode
@@ -69,7 +69,7 @@ class Chip8:
         f = open(romLocation, 'r')
         rom = f.read()
         f.close()
-        rome = rom.replace('\n', ' ')
+        rom = rom.replace('\n', ' ')
         romSize = len(rom.split())
         self.romSize = romSize
         temp = ''
@@ -90,7 +90,7 @@ def Main():
     chip8.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/Fishie.ch8')
     for x in range(chip8.romSize):
         chip8.run()
-        chip8.incrementPC(2)
+        # chip8.incrementPC(2)
     #for x in chip8.stack:
     #    print(x)
 

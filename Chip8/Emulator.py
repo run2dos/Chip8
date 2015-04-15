@@ -26,7 +26,7 @@ class Main(threading.Thread):
                 Main.display.paint()
                 Main.chip.removeDrawFlag()
             sleep(0.016)
-            Main.chip.incrementPC(2)
+
 
 
 
