@@ -45,8 +45,10 @@ class interpreter:
   def Opcode5(opcode):
       print(hex(opcode), end= ': ')
       VX, VY = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4
-      print('5XY0 Skip the following instruction if the value of register VX is equal to the value of register VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
-
+      if (opcode & 0x000F) == 0x0000:
+          print('5XY0 Skip the following instruction if the value of register VX is equal to the value of register VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
+      else:
+          print('This opcode does not exist!')
 
       
   def Opcode6(opcode):
@@ -94,15 +96,17 @@ class interpreter:
         print('8XYE Store the value of register VY shifted left one bit in register VX Set register VF to the most significant bit prior to the shift', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
       
       else:
-        print('Not Handled yet!')
+        print('This opcode does not exist!')
       
 
 
   def Opcode9(opcode):
       print(hex(opcode), end= ': ')
       VX, VY = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4
-      print('9XY0 Skip the following instruction if the value of register VX is not equal to the value of register VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
-      
+      if (opcode & 0x000F) == 0x0000:
+          print('9XY0 Skip the following instruction if the value of register VX is not equal to the value of register VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
+      else:
+          print('This opcode does not exist!')
 
 
   def OpcodeA(opcode):
@@ -143,7 +147,7 @@ class interpreter:
       print('EXA1 Skip the following instruction if the key corresponding to the hex value currently stored in register VX is not pressed', 'reg_VX='+hex(VX))
 
     else:
-      print('Does not exist.')
+      print('This opcode does not exist!')
       
 
 
@@ -178,7 +182,7 @@ class interpreter:
       print('FX65 Fills V0 to VX with values from memory starting at address I.', 'reg_VX='+hex(VX))
 
     else:
-      print('Not Handled yet!')
+      print('This opcode does not exist!')
 
 
 
@@ -215,7 +219,7 @@ class interpreter:
 
 
 def Main():
-    interpreter.interpretOpcode(0x8ABF)
+    interpreter.interpretOpcode(0x9AB3)
 
 if __name__=='__main__':
     Main()
