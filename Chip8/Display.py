@@ -40,7 +40,7 @@ class TextDisplay:
             self.paint()
 
 def main():
-    chip = Chip8
+    chip = Chip8()
     testdisplay = TextDisplay(chip)
     testdisplay.test()
 

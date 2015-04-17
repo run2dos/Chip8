@@ -24,7 +24,7 @@ class Main(threading.Thread):
             if Main.chip.needsReDrawn():
                 Main.display.paint()
                 Main.chip.removeDrawFlag()
-            sleep(0.016)
+            sleep(0.16)
 
 
 if __name__ == '__main__':

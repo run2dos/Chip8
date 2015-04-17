@@ -61,13 +61,12 @@ class Chip8:
         """Returns Current Value of the display"""
         return self.display
 
-    @classmethod
-    def display_test(cls, x, state):
+    def display_test(self, x, state):
         """Method that makes it easier to test the display"""
-        Chip8.display[x]=state
-        Chip8.display[x + (64 * 8)]=state
-        Chip8.display[x + (64 * 16)]=state
-        Chip8.display[x + (64 * 24)]=state
+        self.display[x]=state
+        self.display[x + (64 * 8)]=state
+        self.display[x + (64 * 16)]=state
+        self.display[x + (64 * 24)]=state
 
     @classmethod
     def clr_display(cls):
@@ -81,31 +80,45 @@ class Chip8:
     def set_display(self, _list):
         self.display = _list
 
-    def draw_on_display(self, VX, VY, N):
-        x = VX
-        y = VY
-        height = N
-        print('draw started')
-
-        self.set_register(0xF, 0)
-        print('register set to 0')
-
-        for yline in range(height + 1):
-            pixel = self.memory[self.I + yline]
-            print('pixel =', pixel)
-            for xline in range(8):
-                if (pixel & (0x80 >> xline)) != 0:
-                    if self.display[x + xline + ((y + yline) * 64)] == 1:
-                        self.set_register(0xF, 1)
-                        print('register set to 1')
-                    self.display[x + xline + ((y + yline) * 64)] = 1
-        self.needsReDraw = True
-
-    # def draw_on_display(self, VX, VY, N):
-    #     x = VX
-    #     y = VY
+    # def old_draw_on_display(self, VX, VY, N):
+    #     x = self.get_register(VX)
+    #     y = self.get_register(VY)
     #     height = N
-    #     pixel = 0
+    #     print('draw started')
+
+    #     self.set_register(0xF, 0)
+    #     print('register set to 0')
+
+    #     for yline in range(height + 1):
+    #         pixel = self.memory[self.I + yline]
+    #         print('pixel =', pixel)
+    #         for xline in range(8):
+    #             if (pixel & (0x80 >> xline)) != 0:
+    #                 if self.display[x + xline + ((y + yline) * 64)] == 1:
+    #                     self.set_register(0xF, 1)
+    #                     print('register set to 1')
+    #                 self.display[x + xline + ((y + yline) * 64)] ^= 1
+    #     self.needsReDraw = True
+
+    def draw_on_display(self, VX, VY, N):
+        x = self.get_register(VX)
+        y = self.get_register(VY)
+        I = self.I
+        height = N
+        for _y in range(height):
+            line = self.memory[I + _y]
+            for _x in range(8):
+                pixel = line & (0x80 >> _x)
+                if pixel !=0:
+                    totalX = x + _x
+                    totalY = y + _y
+                    idx = totalY * 64 + totalX
+
+                    if self.display[idx] == 1:
+                        self.set_register(0xf, 1)
+
+                    self.display[idx] ^= 1
+        self.needsReDraw=True
 
     def run(self):
         """Fetches, Decodes, and Executes Opcode"""
