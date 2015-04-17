@@ -13,10 +13,10 @@ from Display import TextDisplay
 from time import sleep
 
 class Main(threading.Thread):
-
+    romName = 'MAZE.ch8'
     chip = Chip8()
     display = TextDisplay(chip)
-    chip.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/Fishie.ch8')
+    chip.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/' + romName)
 
     def run(self):
         while(True):

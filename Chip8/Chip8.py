@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, random
 home = os.getenv("HOME")
 home += "/Dropbox/Python/Projects/Chip8/Chip8/"
 sys.path.append(home)
@@ -31,6 +31,31 @@ class Chip8:
         self.keys = np.zeros(16, dtype=np.uint8)
 
         self.needsReDraw = False
+        self._printOpcodeFlag = False
+
+    def get_all_values(self):
+        print('pc:', hex(self.pc))
+        print('reg 0:', self.reg_V[0x0])
+        print('reg 1:', self.reg_V[0x1])
+        print('reg 2:', self.reg_V[0x2])
+        print('reg 3:', self.reg_V[0x3])
+        print('reg 4:', self.reg_V[0x4])
+        print('reg 5:', self.reg_V[0x5])
+        print('reg 6:', self.reg_V[0x6])
+        print('reg 7:', self.reg_V[0x7])
+        print('reg 8:', self.reg_V[0x8])
+        print('reg 9:', self.reg_V[0x9])
+        print('reg A:', self.reg_V[0xA])
+        print('reg B:', self.reg_V[0xB])
+        print('reg C:', self.reg_V[0xC])
+        print('reg D:', self.reg_V[0xD])
+        print('reg E:', self.reg_V[0xE])
+        print('reg F:', self.reg_V[0xF])
+        print('I:', hex(self.I))
+        print('stack:', self.stack)
+        print('sp', self.stack_pointer)
+
+
 
     def get_display(self):
         """Returns Current Value of the display"""
@@ -60,26 +85,27 @@ class Chip8:
         x = VX
         y = VY
         height = N
-        pixel = 0
-
-        # for idx, x in enumerate(self.display):
-        #     self.display[idx]=0
-        # self.needsReDraw=True
+        print('draw started')
 
         self.set_register(0xF, 0)
+        print('register set to 0')
 
-        for yline in range(height):
+        for yline in range(height + 1):
             pixel = self.memory[self.I + yline]
+            print('pixel =', pixel)
             for xline in range(8):
                 if (pixel & (0x80 >> xline)) != 0:
                     if self.display[x + xline + ((y + yline) * 64)] == 1:
                         self.set_register(0xF, 1)
+                        print('register set to 1')
                     self.display[x + xline + ((y + yline) * 64)] = 1
         self.needsReDraw = True
 
-
-
-
+    # def draw_on_display(self, VX, VY, N):
+    #     x = VX
+    #     y = VY
+    #     height = N
+    #     pixel = 0
 
     def run(self):
         """Fetches, Decodes, and Executes Opcode"""
@@ -87,9 +113,13 @@ class Chip8:
         opcode = (self.memory[self.pc] << 8) | self.memory[self.pc + 1]
         # print(hex(opcode), ': ', end='')
         interpreter(self).interpretOpcode(opcode)
+        # self.get_all_values()
         # decode opcode
 
             #execute opcode
+
+    def set_memory(self, addr, value):
+        self.memory[addr] = value
 
     def jump_to_address(self, addr):
         """Sets the Program Counter to the current address"""
@@ -98,6 +128,20 @@ class Chip8:
     def incrementPC(self, inc):
         """Increments the Program Counter by the inc amount"""
         self.pc += inc
+
+    def incrementStackPointer(self, inc):
+        """Increments the Stack Pointer by the inc amount"""
+        self.stack_pointer += inc
+
+    def setStack(self, value):
+        """Sets the stack to the value"""
+        self.stack[self.stack_pointer] = value
+
+    def popStack(self):
+        addr = self.stack[self.stack_pointer-1]
+        self.stack[self.stack_pointer-1]=0
+        self.stack_pointer -= 1
+        return addr + 2
 
     def setI(self, addr):
         """Sets I to the value of addr"""
@@ -125,6 +169,9 @@ class Chip8:
     def removeDrawFlag(self):
         """Turns the needsReDraw flag false"""
         self.needsReDraw = False
+
+    def get_print_opcode_flag():
+        return self._printOpcodeFlag
 
 
     def loadRom(self, romLocation):
@@ -155,6 +202,8 @@ class interpreter:
         print(hex(opcode), end=': ')
         NNN = 0xFFF & opcode
         if (opcode & 0x00FF) == 0x00EE:
+            addr = self.chip.popStack()
+            self.chip.jump_to_address(addr)
             print('00EE Return from a subroutine.')
 
         elif (opcode & 0x00F0) == 0x00E0:
@@ -178,6 +227,9 @@ class interpreter:
     def Opcode2(self, opcode):
         print(hex(opcode), end= ': ')
         NNN = 0xFFF & opcode
+        self.chip.setStack(self.chip.pc)
+        self.chip.incrementStackPointer(1)
+        self.chip.jump_to_address(NNN)
         print('2NNN Execute subroutine starting at address NNN', 'Addr_NNN='+hex(NNN))
 
 
@@ -185,6 +237,10 @@ class interpreter:
     def Opcode3(self, opcode):
         print(hex(opcode), end= ': ')
         VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
+        if self.chip.get_register(VX) == NN:
+            self.chip.incrementPC(4)
+        else:
+            self.chip.incrementPC(2)
         print('3XNN Skip the following instruction if the value of register VX equals NN', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
 
 
@@ -192,11 +248,12 @@ class interpreter:
     def Opcode4(self, opcode):
         print(hex(opcode), end= ': ')
         VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
-        print('4XNN Skip the following instruction if the value of register VX is not equal to NN', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
         if self.chip.get_register(VX) != NN:
             self.chip.incrementPC(4)
         else:
             self.chip.incrementPC(2)
+        print('4XNN Skip the following instruction if the value of register VX is not equal to NN', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
+
 
 
       
@@ -233,18 +290,37 @@ class interpreter:
         print(hex(opcode), end= ': ')
         VX, VY = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4
         if (opcode & 0x000F) == 0x0000:
+            self.chip.set_register(VX,self.chip.get_register(VY))
+            self.chip.incrementPC(2)
             print('8XY0 Store the value of register VY in register VX', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
 
         elif (opcode & 0x000F) == 0x0001:
             print('8XY1 Set VX to VX OR VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
 
         elif (opcode & 0x000F) == 0x0002:
+            x = self.chip.get_register(VX)
+            y = self.chip.get_register(VY)
+            self.chip.set_register((x & y), VX)
+            self.chip.incrementPC(2)
             print('8XY2 Set VX to VX AND VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
 
         elif (opcode & 0x000F) == 0x0003:
             print('8XY3 Set VX to VX XOR VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
 
         elif (opcode & 0x000F) == 0x0004:
+            VF = 0xF
+            x = self.chip.get_register(VX)
+            y = self.chip.get_register(VY)
+            result = y + x
+            if result > 255:
+                result = result % 256
+                self.chip.set_register(VF, 1)
+                self.chip.set_register(VX, result)
+            else:
+                self.chip.set_register(VF, 0)
+                self.chip.set_register(VX, result)
+            self.chip.incrementPC(2)
+
             print('8XY4 Add the value of register VY to register VX Set VF to 01 if a carry occurs Set VF to 00 if a carry does not occur', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
 
         elif (opcode & 0x000F) == 0x0005:
@@ -292,6 +368,9 @@ class interpreter:
     def OpcodeC(self, opcode):
         print(hex(opcode), end= ': ')
         VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
+        randNN = random.randint(0, NN)
+        self.chip.set_register(VX, randNN)
+        self.chip.incrementPC(2)
         print('CXNN Set VX to a random number with a mask of NN', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
       
 
@@ -300,7 +379,6 @@ class interpreter:
         print(hex(opcode), end= ': ')
         VX, VY, N = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4, opcode & 0x000F
         print('DXYN Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I Set VF to 01 if any set pixels are changed to unset, and 00 otherwise', 'reg_VX='+hex(VX), 'reg_VY='+hex(VY), 'N='+hex(N))
-        print('Comeback to this')
         self.chip.draw_on_display(VX, VY, N)
         self.chip.incrementPC(2)
       
@@ -345,12 +423,30 @@ class interpreter:
             print('FX29 Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.', 'reg_VX='+hex(VX))
 
         elif (opcode & 0x00FF) == 0x0033:
-            print('FX33 Stores the Binary-coded decimal representation of VX, with the most significant of three digits at the address in I, the middle digit at I plus 1, and the least significant digit at I plus 2. (In other words, take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.)', 'reg_VX='+hex(VX))
+            I = self.chip.getI()
+            hundreds = int(self.chip.get_register(VX) / 100)
+            tens = int((self.chip.get_register(VX)/10) % 10)
+            ones = int((self.chip.get_register(VX)%100) % 10)
+            self.chip.set_memory(I, hundreds)
+            self.chip.set_memory(I + 1, tens)
+            self.chip.set_memory(I + 2, ones)
+            self.chip.incrementPC(2)
+
+            print(hundreds, tens, ones)
+
+            print('FX33 Stores the Binary-coded decimal representation of VX, with the most significant of three digits at the address in I, the middle digit at I plus 1, and the least significant digit at I plus 2. (In other words, take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.)', 'reg_VX='+hex(VX), 'decimal=' + str(self.chip.get_register(VX)), 'I='+ str(self.chip.getI()))
 
         elif (opcode & 0x00FF) == 0x0055:
             print('FX55 Stores V0 to VX in memory starting at address I.', 'reg_VX='+hex(VX))
 
         elif (opcode & 0x00FF) == 0x0065:
+            I = self.chip.getI()
+            for x in range(VX + 1):
+                value = self.chip.get_memory_location(I)
+                self.chip.set_register(x, value)
+                I += 1
+                self.chip.incrementPC(2)
+
             print('FX65 Fills V0 to VX with values from memory starting at address I.', 'reg_VX='+hex(VX))
 
         else:
@@ -395,7 +491,7 @@ def Main():
     #     z += 1
     # for x in chip8.get_display():
     #     print(x)
-    chip8.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/Fishie.ch8')
+    chip8.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/Maze.ch8')
     for x in range(chip8.romSize):
         chip8.run()
         # chip8.incrementPC(2)
