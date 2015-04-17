@@ -8,11 +8,33 @@ class Debugger:
         self.chip = chip
         self.mainwindow = Tk()
 
+        self.reg0 = StringVar()
+        self.reg1 = StringVar() 
+        self.reg2 = StringVar() 
+        self.reg3 = StringVar() 
+        self.reg4 = StringVar() 
+        self.reg5 = StringVar() 
+        self.reg6 = StringVar() 
+        self.reg7 = StringVar() 
+        self.reg8 = StringVar() 
+        self.reg9 = StringVar() 
+        self.regA = StringVar() 
+        self.regB = StringVar() 
+        self.regC = StringVar() 
+        self.regD = StringVar() 
+        self.regE = StringVar() 
+        self.regF = StringVar()
+        self.SP = StringVar()
+        self.PC = StringVar()
+        self.opcode = StringVar()
+        self.cycle = StringVar()
+
+
         self.frame = Frame(self.mainwindow)
-        self.frame.pack(padx = 30, pady = 15)
+        self.frame.pack(padx =10, pady = 15)
 
         leftlabelframe = LabelFrame(self.frame, text="Registers")
-        leftlabelframe.grid(row=0, column=0, rowspan=2, padx=10)
+        leftlabelframe.grid(row=0, column=0, rowspan=2, padx=20)
 
         rightlabelframe = LabelFrame(self.frame, text="Emu Values")
         rightlabelframe.grid(row=0, column=1, padx=10)
@@ -73,7 +95,7 @@ class Debugger:
         label_regF.grid(row=15, column=0)
 
 
-        label_value0 = Label(inner_frame, text='000').grid(row=0, column=1)
+        label_value0 = Label(inner_frame, textvariable = self.reg0).grid(row=0, column=1)
         label_value1 = Label(inner_frame, text='000').grid(row=1, column=1)
         label_value2 = Label(inner_frame, text='000').grid(row=2, column=1)
         label_value3 = Label(inner_frame, text='000').grid(row=3, column=1)
@@ -113,7 +135,6 @@ class Debugger:
         brinner_frame = Frame(bottomrightlabelframe)
         brinner_frame.pack(padx = 10, pady =15)
 
-        reg0, reg1, reg2, reg3
 
     def run(self):
         self.mainwindow.mainloop()
