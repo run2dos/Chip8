@@ -19,24 +19,12 @@ class Main(threading.Thread):
     chip.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/Fishie.ch8')
 
     def run(self):
-        #run_thread = threading.Thread(target=cls.chip.run).start()
         while(True):
             Main.chip.run()
             if Main.chip.needsReDrawn():
                 Main.display.paint()
                 Main.chip.removeDrawFlag()
             sleep(0.016)
-
-
-
-
-    #@classmethod
-    #def test_run(cls):
-    #    for x in range(64 * 8):
-    #        cls.chip.display_test(x, 1)
-    #        cls.display.paint()        
-    #        sleep(.024)
-    #        cls.chip.run()
 
 
 if __name__ == '__main__':
