@@ -211,13 +211,6 @@ class interpreter:
           interpreter.OpcodePrefix[opcode & 0xF000](opcode)
           # OpcodePrefix[opcode & 0xF000](str(opcode))
 
-  def OpcodeDoesNotExist():
-      print('This opcode does not exist')
-
-  def GetOpcodeAddressNNN(opcode):
-      return hex(0x0FFF & int(opcode))
-
-
 def Main():
     interpreter.interpretOpcode(0x9AB3)
 
