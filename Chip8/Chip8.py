@@ -9,10 +9,10 @@ MAX_MEMORY = 4096
 
 class Chip8:
 
-    display = np.zeros((64 * 32), dtype=np.uint8)
-
     def __init__(self):
         opcode = np.uint16
+
+        self.display = np.zeros((64 * 32), dtype=np.uint8)
 
         self.memory = np.zeros([4096], dtype=np.uint8)
         self.romSize = np.zeros([0], dtype=np.uint8)
@@ -32,10 +32,9 @@ class Chip8:
 
         self.needsReDraw = False
 
-    @classmethod
-    def get_display(cls):
+    def get_display(self):
         """Returns Current Value of the display"""
-        return Chip8.display
+        return self.display
 
     @classmethod
     def display_test(cls, x, state):
@@ -45,22 +44,79 @@ class Chip8:
         Chip8.display[x + (64 * 16)]=state
         Chip8.display[x + (64 * 24)]=state
 
+    @classmethod
+    def clr_display(cls):
+        """Clears the Display"""
+        cls.display = np.zeros((64 * 32), dtype=np.uint8)
+        # print('Display Cleared')
+
+    def set_display_location(self, location, value):
+        self.display[location] = value
+
+    def set_display(self, _list):
+        self.display = _list
+
+    def draw_on_display(self, VX, VY, N):
+        x = VX
+        y = VY
+        height = N
+        pixel = 0
+
+        # for idx, x in enumerate(self.display):
+        #     self.display[idx]=0
+        # self.needsReDraw=True
+
+        self.set_register(0xF, 0)
+
+        for yline in range(height):
+            pixel = self.memory[self.I + yline]
+            for xline in range(8):
+                if (pixel & (0x80 >> xline)) != 0:
+                    if self.display[x + xline + ((y + yline) * 64)] == 1:
+                        self.set_register(0xF, 1)
+                    self.display[x + xline + ((y + yline) * 64)] = 1
+        self.needsReDraw = True
+
+
+
+
 
     def run(self):
         """Fetches, Decodes, and Executes Opcode"""
         # fetch opcode
         opcode = (self.memory[self.pc] << 8) | self.memory[self.pc + 1]
         # print(hex(opcode), ': ', end='')
-        interpreter.interpretOpcode(opcode)
+        interpreter(self).interpretOpcode(opcode)
         # decode opcode
 
             #execute opcode
 
+    def jump_to_address(self, addr):
+        """Sets the Program Counter to the current address"""
+        self.pc = addr
 
     def incrementPC(self, inc):
         """Increments the Program Counter by the inc amount"""
         self.pc += inc
 
+    def setI(self, addr):
+        """Sets I to the value of addr"""
+        self.I = addr
+
+    def getI(self):
+        """Returns the value of I register"""
+        return self.I
+
+    def set_register(self, VX, value):
+        """Sets reg_VX to value"""
+        self.reg_V[VX] = value
+
+    def get_register(self, VX):
+        """Returns the value of the register"""
+        return self.reg_V[VX]
+
+    def get_memory_location(self, addr):
+        return self.memory[addr]
 
     def needsReDrawn(self):
         """Returns the current bool value of the needsReDraw flag"""
@@ -91,13 +147,19 @@ class Chip8:
 
 class interpreter:
 
-    def Opcode0(opcode):
+    def __init__(self, chip):
+        self.chip = chip
+        pass
+
+    def Opcode0(self, opcode):
         print(hex(opcode), end=': ')
         NNN = 0xFFF & opcode
         if (opcode & 0x00FF) == 0x00EE:
             print('00EE Return from a subroutine.')
 
         elif (opcode & 0x00F0) == 0x00E0:
+            self.chip.clr_display()
+            self.chip.incrementPC(2)
             print('00E0 Clear Screen')
 
         else:
@@ -105,35 +167,40 @@ class interpreter:
 
 
 
-    def Opcode1(opcode):
+    def Opcode1(self, opcode):
         print(hex(opcode), end= ': ')
         NNN = 0xFFF & opcode
         print('1NNN Jump to address NNN', 'Addr_NNN='+hex(NNN))
+        self.chip.jump_to_address(NNN)
 
 
 
-    def Opcode2(opcode):
+    def Opcode2(self, opcode):
         print(hex(opcode), end= ': ')
         NNN = 0xFFF & opcode
         print('2NNN Execute subroutine starting at address NNN', 'Addr_NNN='+hex(NNN))
 
 
       
-    def Opcode3(opcode):
+    def Opcode3(self, opcode):
         print(hex(opcode), end= ': ')
         VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
         print('3XNN Skip the following instruction if the value of register VX equals NN', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
 
 
       
-    def Opcode4(opcode):
+    def Opcode4(self, opcode):
         print(hex(opcode), end= ': ')
         VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
         print('4XNN Skip the following instruction if the value of register VX is not equal to NN', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
+        if self.chip.get_register(VX) != NN:
+            self.chip.incrementPC(4)
+        else:
+            self.chip.incrementPC(2)
 
 
       
-    def Opcode5(opcode):
+    def Opcode5(self, opcode):
         print(hex(opcode), end= ': ')
         VX, VY = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4
         if (opcode & 0x000F) == 0x0000:
@@ -142,21 +209,27 @@ class interpreter:
             print('This opcode does not exist!')
 
       
-    def Opcode6(opcode):
+    def Opcode6(self, opcode):
         print(hex(opcode), end= ': ')
         VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
+        self.chip.set_register(VX, NN)
+        self.chip.incrementPC(2)
         print('6XNN Store number NN in register VX', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
 
 
       
-    def Opcode7(opcode):
+    def Opcode7(self, opcode):
         print(hex(opcode), end= ': ')
         VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
         print('7XNN Add the value NN to register VX', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
-
+        result = NN + self.chip.get_register(VX)
+        if result > 255:
+            result = result % 256
+        self.chip.set_register(VX, result)
+        self.chip.incrementPC(2)
 
       
-    def Opcode8(opcode):
+    def Opcode8(self, opcode):
         print(hex(opcode), end= ': ')
         VX, VY = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4
         if (opcode & 0x000F) == 0x0000:
@@ -191,7 +264,7 @@ class interpreter:
       
 
 
-    def Opcode9(opcode):
+    def Opcode9(self, opcode):
         print(hex(opcode), end= ': ')
         VX, VY = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4
         if (opcode & 0x000F) == 0x0000:
@@ -200,35 +273,40 @@ class interpreter:
             print('This opcode does not exist!')
 
 
-    def OpcodeA(opcode):
+    def OpcodeA(self, opcode):
         print(hex(opcode), end= ': ')
         NNN = 0xFFF & opcode
+        self.chip.setI(NNN)
+        self.chip.incrementPC(2)
         print('ANNN Store memory address NNN in register I', 'Addr_NNN='+hex(NNN))
       
 
 
-    def OpcodeB(opcode):
+    def OpcodeB(self, opcode):
         print(hex(opcode), end= ': ')
         NNN = 0xFFF & opcode
         print('BNNN Jump to address NNN + V0', 'Addr_NNN='+hex(NNN))
       
 
 
-    def OpcodeC(opcode):
+    def OpcodeC(self, opcode):
         print(hex(opcode), end= ': ')
         VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
         print('CXNN Set VX to a random number with a mask of NN', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
       
 
 
-    def OpcodeD(opcode):
+    def OpcodeD(self, opcode):
         print(hex(opcode), end= ': ')
         VX, VY, N = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4, opcode & 0x000F
         print('DXYN Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I Set VF to 01 if any set pixels are changed to unset, and 00 otherwise', 'reg_VX='+hex(VX), 'reg_VY='+hex(VY), 'N='+hex(N))
+        print('Comeback to this')
+        self.chip.draw_on_display(VX, VY, N)
+        self.chip.incrementPC(2)
       
 
 
-    def OpcodeE(opcode):
+    def OpcodeE(self, opcode):
       print(hex(opcode), end= ': ')
       VX = (opcode & 0x0F00) >> 8
       if (int(opcode) & 0xF0FF) == 0xE09E:
@@ -242,7 +320,7 @@ class interpreter:
       
 
 
-    def OpcodeF(opcode):
+    def OpcodeF(self, opcode):
         print(hex(opcode), end= ': ')
         VX = (opcode & 0x0F00) >> 8 
         if (opcode & 0x00FF) == 0x0007:
@@ -259,6 +337,9 @@ class interpreter:
 
         elif (opcode & 0x00FF) == 0x001E:
             print('FX1E Adds VX to I.', 'reg_VX='+hex(VX))
+            result = self.chip.get_register(VX) + self.chip.getI()
+            self.chip.setI(result)
+            self.chip.incrementPC(2)
 
         elif (opcode & 0x00FF) == 0x0029:
             print('FX29 Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.', 'reg_VX='+hex(VX))
@@ -295,11 +376,11 @@ class interpreter:
              0xF000: OpcodeF
     }
 
-    def interpretOpcode(opcode):
+    def interpretOpcode(self, opcode):
       if (opcode & 0xF000) not in interpreter.OpcodePrefix:
           OpcodeDoesNotExist()
       else:
-          interpreter.OpcodePrefix[opcode & 0xF000](opcode)
+          interpreter.OpcodePrefix[opcode & 0xF000](self, opcode)
           # OpcodePrefix[opcode & 0xF000](str(opcode))
 
 
@@ -317,7 +398,7 @@ def Main():
     chip8.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/Fishie.ch8')
     for x in range(chip8.romSize):
         chip8.run()
-        chip8.incrementPC(2)
+        # chip8.incrementPC(2)
     #for x in chip8.stack:
     #    print(x)
 

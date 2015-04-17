@@ -11,9 +11,9 @@ from Chip8 import Chip8
 
 
 class TextDisplay:
-    def __init__(self, Chip8):
-        self.chip = Chip8
-        self.display = self.chip.get_display()
+    def __init__(self, Chip):
+        self.chip = Chip
+        self.display = self.chip.display
         self.title = '               Welcome to the Chip 8 interpreter.'
 
     def paint(self):
@@ -40,7 +40,9 @@ class TextDisplay:
             self.paint()
 
 def main():
-    TextDisplay(Chip8()).test()
+    chip = Chip8
+    testdisplay = TextDisplay(chip)
+    testdisplay.test()
 
 if __name__ == '__main__':
     main()
