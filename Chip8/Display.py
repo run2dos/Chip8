@@ -31,3 +31,16 @@ class TextDisplay:
                 else:
                     print('#', end='')
         print('\n')
+
+    def test(self):
+        from time import sleep
+        for x in range(64 * 8):
+            self.chip.display_test(x, 1)
+            sleep(.25)
+            self.paint()
+
+def main():
+    TextDisplay(Chip8()).test()
+
+if __name__ == '__main__':
+    main()
