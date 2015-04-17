@@ -1,13 +1,12 @@
 class interpreter:
 
-  def Opcode0(x):
-      print(hex(x), end=': ')
-      NNN = 0xFFF & x
-
-      if (x & 0x00FF) == 0x00EE:
+  def Opcode0(opcode):
+      print(hex(opcode), end=': ')
+      NNN = 0xFFF & opcode
+      if (opcode & 0x00FF) == 0x00EE:
           print('00EE Return from a subroutine.')
 
-      elif (x & 0x00F0) == 0x00E0:
+      elif (opcode & 0x00F0) == 0x00E0:
           print('00E0 Clear Screen')
 
       else:
@@ -15,155 +14,171 @@ class interpreter:
 
 
 
-  def Opcode1(x):
-      print(hex(x), end= ': ')
-      NNN = 0xFFF & x
+  def Opcode1(opcode):
+      print(hex(opcode), end= ': ')
+      NNN = 0xFFF & opcode
       print('1NNN Jump to address NNN', 'Addr_NNN='+hex(NNN))
 
 
 
-  def Opcode2(x):
-      print(hex(x), end= ': ')
-      NNN = 0xFFF & x
+  def Opcode2(opcode):
+      print(hex(opcode), end= ': ')
+      NNN = 0xFFF & opcode
       print('2NNN Execute subroutine starting at address NNN', 'Addr_NNN='+hex(NNN))
 
 
       
-  def Opcode3(x):
-      print(hex(x), end= ': ')
-      VX, NN = (x & 0x0F00) >> 8, x & 0x00FF
+  def Opcode3(opcode):
+      print(hex(opcode), end= ': ')
+      VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
       print('3XNN Skip the following instruction if the value of register VX equals NN', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
 
 
       
-  def Opcode4(x):
-      print(hex(x), end= ': ')
-      VX, NN = (x & 0x0F00) >> 8, x & 0x00FF
+  def Opcode4(opcode):
+      print(hex(opcode), end= ': ')
+      VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
       print('4XNN Skip the following instruction if the value of register VX is not equal to NN', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
 
 
       
-  def Opcode5(x):
-      print(hex(x), end= ': ')
-      VX, VY = (x & 0x0F00) >> 8, (x & 0x00F0) >> 4
+  def Opcode5(opcode):
+      print(hex(opcode), end= ': ')
+      VX, VY = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4
       print('5XY0 Skip the following instruction if the value of register VX is equal to the value of register VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
 
 
       
-  def Opcode6(x):
-      print(hex(x), end= ': ')
-      VX, NN = (x & 0x0F00) >> 8, x & 0x00FF
+  def Opcode6(opcode):
+      print(hex(opcode), end= ': ')
+      VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
       print('6XNN Store number NN in register VX', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
 
 
       
-  def Opcode7(x):
-      print(hex(x), end= ': ')
-      VX, NN = (x & 0x0F00) >> 8, x & 0x00FF
+  def Opcode7(opcode):
+      print(hex(opcode), end= ': ')
+      VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
       print('7XNN Add the value NN to register VX', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
 
 
       
-  def Opcode8(x):
-      print(hex(x), end= ': ')
+  def Opcode8(opcode):
+      print(hex(opcode), end= ': ')
+      VX, VY = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4
+      if (opcode & 0x000F) == 0x0000:
+        print('8XY0 Store the value of register VY in register VX', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
+
+      elif (opcode & 0x000F) == 0x0001:
+        print('8XY1 Set VX to VX OR VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
+
+      elif (opcode & 0x000F) == 0x0002:
+        print('8XY2 Set VX to VX AND VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
+
+      elif (opcode & 0x000F) == 0x0003:
+        print('8XY3 Set VX to VX XOR VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
+
+      elif (opcode & 0x000F) == 0x0004:
+        print('8XY4 Add the value of register VY to register VX Set VF to 01 if a carry occurs Set VF to 00 if a carry does not occur', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
+
+      elif (opcode & 0x000F) == 0x0005:
+        print('8XY5 Subtract the value of register VY from register VX Set VF to 00 if a borrow occurs Set VF to 01 if a borrow does not occur', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
+
+      elif (opcode & 0x000F) == 0x0006:
+        print('8XY6 Store the value of register VY shifted right one bit in register VX Set register VF to the least significant bit prior to the shift', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
+
+      elif (opcode & 0x000F) == 0x0007:
+        print('8XY7 Set register VX to the value of VY minus VX Set VF to 00 if a borrow occurs Set VF to 01 if a borrow does not occur', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
+
+      elif (opcode & 0x000F) == 0x000E:
+        print('8XYE Store the value of register VY shifted left one bit in register VX Set register VF to the most significant bit prior to the shift', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
       
-      if (int(x) & 0x000F) == 0x0000:
-        print(hex(int(x)), '8000')
-
-      elif (int(x) & 0x000F) == 0x0001:
-        print(hex(int(x)), '8001')
-
-      elif (int(x) & 0x000F) == 0x0002:
-        print(hex(int(x)), '8002')
-
-      elif (int(x) & 0x000F) == 0x0003:
-        print(hex(int(x)), '8003')
-
-      elif (int(x) & 0x000F) == 0x0004:
-        print(hex(int(x)), '8004')
-
-      elif (int(x) & 0x000F) == 0x0005:
-        print(hex(int(x)), '8005')
-
-      elif (int(x) & 0x000F) == 0x0006:
-        print(hex(int(x)), '8006')
-
-      elif (int(x) & 0x000F) == 0x0007:
-        print(hex(int(x)), '8007')
-      elif (int(x) & 0x000F) == 0x000E:
-        print(hex(int(x)), '800E')
       else:
-        print(hex(int(x)), 'Not Handled yet!')
+        print('Not Handled yet!')
       
 
 
-  def Opcode9(x):
-      print(hex(x), end= ': ')
-      VX, VY = (x & 0x0F00) >> 8, (x & 0x00F0) >> 4
+  def Opcode9(opcode):
+      print(hex(opcode), end= ': ')
+      VX, VY = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4
       print('9XY0 Skip the following instruction if the value of register VX is not equal to the value of register VY', 'reg_VX='+hex(VX), 'regVY='+hex(VY))
       
 
 
-  def OpcodeA(x):
-      print(hex(x), end= ': ')
-      NNN = 0xFFF & x
+  def OpcodeA(opcode):
+      print(hex(opcode), end= ': ')
+      NNN = 0xFFF & opcode
       print('ANNN Store memory address NNN in register I', 'Addr_NNN='+hex(NNN))
       
 
 
-  def OpcodeB(x):
-      print(hex(x), end= ': ')
-      NNN = 0xFFF & x
+  def OpcodeB(opcode):
+      print(hex(opcode), end= ': ')
+      NNN = 0xFFF & opcode
       print('BNNN Jump to address NNN + V0', 'Addr_NNN='+hex(NNN))
       
 
 
-  def OpcodeC(x):
-      print(hex(x), end= ': ')
-      VX, NN = (x & 0x0F00) >> 8, x & 0x00FF
+  def OpcodeC(opcode):
+      print(hex(opcode), end= ': ')
+      VX, NN = (opcode & 0x0F00) >> 8, opcode & 0x00FF
       print('CXNN Set VX to a random number with a mask of NN', 'reg_VX='+hex(VX), 'value_NN='+hex(NN))
       
 
 
-  def OpcodeD(x):
-      print(hex(x), end= ': ')
-      print("""DXYN Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I Set VF to 01 if any set pixels are changed to unset, and 00 otherwise""")
+  def OpcodeD(opcode):
+      print(hex(opcode), end= ': ')
+      VX, VY, N = (opcode & 0x0F00) >> 8, (opcode & 0x00F0) >> 4, opcode & 0x000F
+      print('DXYN Draw a sprite at position VX, VY with N bytes of sprite data starting at the address stored in I Set VF to 01 if any set pixels are changed to unset, and 00 otherwise', 'reg_VX='+hex(VX), 'reg_VY='+hex(VY), 'N='+hex(N))
       
 
 
-  def OpcodeE(x):
-    print(hex(x), end= ': ')
-    if (int(x, 16) & 0xF0FF) == 0xE09E:
-      print(x, 'EX9E Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed')
-    elif (int(x, 16) & 0xF0FF) == 0xE0A1:
-      print(x, 'EXA1 Skip the following instruction if the key corresponding to the hex value currently stored in register VX is not pressed')
+  def OpcodeE(opcode):
+    print(hex(opcode), end= ': ')
+    VX = (opcode & 0x0F00) >> 8
+    if (int(opcode) & 0xF0FF) == 0xE09E:
+      print('EX9E Skip the following instruction if the key corresponding to the hex value currently stored in register VX is pressed', 'reg_VX='+hex(VX))
+
+    elif (opcode & 0xF0FF) == 0xE0A1:
+      print('EXA1 Skip the following instruction if the key corresponding to the hex value currently stored in register VX is not pressed', 'reg_VX='+hex(VX))
+
     else:
-      print(x, 'Does not exist.')
+      print('Does not exist.')
       
 
 
-  def OpcodeF(x):
-    x = int(x, 16)
-    if (x & 0x00FF) == 0x0007:
-      print(hex(x), 'FX07 Sets VX to the value of the delay timer.')
-    elif (x & 0x00FF) == 0x000A:
-      print(hex(x), 'FX0A A key press is awaited, and then stored in VX.')
-    elif (x & 0x00FF) == 0x0015:
-      print(hex(x), 'FX15 Sets the delay timer to VX.')
-    elif (x & 0x00FF) == 0x0018:
-      print(hex(x), 'FX18 Sets the sound timer to VX.')
-    elif (x & 0x00FF) == 0x001E:
-      print(hex(x), 'FX1E Adds VX to I.')
-    elif (x & 0x00FF) == 0x0029:
-      print(hex(x), 'FX29 Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.')
-    elif (x & 0x00FF) == 0x0033:
-      print(hex(x), 'FX33 Stores the Binary-coded decimal representation of VX, with the most significant of three digits at the address in I, the middle digit at I plus 1, and the least significant digit at I plus 2. (In other words, take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.)')
-    elif (x & 0x00FF) == 0x0055:
-      print(hex(x), 'FX55 Stores V0 to VX in memory starting at address I.')
-    elif (x & 0x00FF) == 0x0065:
-      print(hex(x), 'FX65 Fills V0 to VX with values from memory starting at address I.')
+  def OpcodeF(opcode):
+    print(hex(opcode), end= ': ')
+    VX = (opcode & 0x0F00) >> 8 
+    if (opcode & 0x00FF) == 0x0007:
+      print('FX07 Sets VX to the value of the delay timer.', 'reg_VX='+hex(VX))
+
+    elif (opcode & 0x00FF) == 0x000A:
+      print('FX0A A key press is awaited, and then stored in VX.', 'reg_VX='+hex(VX))
+
+    elif (opcode & 0x00FF) == 0x0015:
+      print('FX15 Sets the delay timer to VX.', 'reg_VX='+hex(VX))
+
+    elif (opcode & 0x00FF) == 0x0018:
+      print('FX18 Sets the sound timer to VX.', 'reg_VX='+hex(VX))
+
+    elif (opcode & 0x00FF) == 0x001E:
+      print('FX1E Adds VX to I.', 'reg_VX='+hex(VX))
+
+    elif (opcode & 0x00FF) == 0x0029:
+      print('FX29 Sets I to the location of the sprite for the character in VX. Characters 0-F (in hexadecimal) are represented by a 4x5 font.', 'reg_VX='+hex(VX))
+
+    elif (opcode & 0x00FF) == 0x0033:
+      print('FX33 Stores the Binary-coded decimal representation of VX, with the most significant of three digits at the address in I, the middle digit at I plus 1, and the least significant digit at I plus 2. (In other words, take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.)', 'reg_VX='+hex(VX))
+
+    elif (opcode & 0x00FF) == 0x0055:
+      print('FX55 Stores V0 to VX in memory starting at address I.', 'reg_VX='+hex(VX))
+
+    elif (opcode & 0x00FF) == 0x0065:
+      print('FX65 Fills V0 to VX with values from memory starting at address I.', 'reg_VX='+hex(VX))
+
     else:
-      print(hex(x), 'Not Handled yet!')
+      print('Not Handled yet!')
 
 
 
@@ -185,22 +200,22 @@ class interpreter:
              0xF000: OpcodeF
   }
 
-  def interpretOpcode(x):
-      if (x & 0xF000) not in interpreter.OpcodePrefix:
+  def interpretOpcode(opcode):
+      if (opcode & 0xF000) not in interpreter.OpcodePrefix:
           OpcodeDoesNotExist()
       else:
-          interpreter.OpcodePrefix[x & 0xF000](x)
-          # OpcodePrefix[x & 0xF000](str(x))
+          interpreter.OpcodePrefix[opcode & 0xF000](opcode)
+          # OpcodePrefix[opcode & 0xF000](str(opcode))
 
   def OpcodeDoesNotExist():
       print('This opcode does not exist')
 
-  def GetOpcodeAddressNNN(x):
-      return hex(0x0FFF & int(x))
+  def GetOpcodeAddressNNN(opcode):
+      return hex(0x0FFF & int(opcode))
 
 
 def Main():
-    interpreter.interpretOpcode(0xCABC)
+    interpreter.interpretOpcode(0x8ABF)
 
 if __name__=='__main__':
     Main()
