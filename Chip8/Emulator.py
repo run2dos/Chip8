@@ -9,24 +9,30 @@ sys.path.append(home)
 import numpy as np
 from Chip8 import Chip8
 from Display import TextDisplay
+from Chip8_Debugger import Debugger
 
 from time import sleep
 
 class Main(threading.Thread):
-    romName = 'MAZE.ch8'
-    chip = Chip8()
-    display = TextDisplay(chip)
-    chip.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/' + romName)
+    def __init__(self):
+        romName = 'Guess.ch8'
+        self.chip = Chip8()
+        self.display = TextDisplay(self.chip)
+        self.chip.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/' + romName)
+        threading.Thread.__init__(self)
+        self.start()
 
     def run(self):
         while(True):
-            Main.chip.run()
-            if Main.chip.needsReDrawn():
-                Main.display.paint()
-                Main.chip.removeDrawFlag()
-            sleep(0.16)
+            self.chip.run()
+            if self.chip.needsReDrawn():
+                self.display.paint()
+                self.chip.removeDrawFlag()
+            sleep(0.016)
 
 
 if __name__ == '__main__':
+    print('pree main')
+
     main = Main()
-    main.start()
+    debug = Debugger(main.chip).run()

@@ -445,7 +445,6 @@ class interpreter:
             self.chip.set_memory(I + 2, ones)
             self.chip.incrementPC(2)
 
-            print(hundreds, tens, ones)
 
             print('FX33 Stores the Binary-coded decimal representation of VX, with the most significant of three digits at the address in I, the middle digit at I plus 1, and the least significant digit at I plus 2. (In other words, take the decimal representation of VX, place the hundreds digit in memory at location in I, the tens digit at location I+1, and the ones digit at location I+2.)', 'reg_VX='+hex(VX), 'decimal=' + str(self.chip.get_register(VX)), 'I='+ str(self.chip.getI()))
 
