@@ -4,7 +4,6 @@ home = os.getenv("HOME")
 home += "/Dropbox/Python/Projects/Chip8/Chip8/"
 sys.path.append(home)
 
-import numpy as np
 import math
 
 from Chip8 import Chip8
