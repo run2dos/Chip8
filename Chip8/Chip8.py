@@ -80,26 +80,6 @@ class Chip8:
     def set_display(self, _list):
         self.display = _list
 
-    # def old_draw_on_display(self, VX, VY, N):
-    #     x = self.get_register(VX)
-    #     y = self.get_register(VY)
-    #     height = N
-    #     print('draw started')
-
-    #     self.set_register(0xF, 0)
-    #     print('register set to 0')
-
-    #     for yline in range(height + 1):
-    #         pixel = self.memory[self.I + yline]
-    #         print('pixel =', pixel)
-    #         for xline in range(8):
-    #             if (pixel & (0x80 >> xline)) != 0:
-    #                 if self.display[x + xline + ((y + yline) * 64)] == 1:
-    #                     self.set_register(0xF, 1)
-    #                     print('register set to 1')
-    #                 self.display[x + xline + ((y + yline) * 64)] ^= 1
-    #     self.needsReDraw = True
-
     def draw_on_display(self, VX, VY, N):
         x = self.get_register(VX)
         y = self.get_register(VY)
@@ -124,9 +104,8 @@ class Chip8:
         """Fetches, Decodes, and Executes Opcode"""
         # fetch opcode
         opcode = (self.memory[self.pc] << 8) | self.memory[self.pc + 1]
-        # print(hex(opcode), ': ', end='')
         interpreter(self).interpretOpcode(opcode)
-        # self.get_all_values()
+        self.get_all_values()
         # decode opcode
 
             #execute opcode
@@ -183,21 +162,16 @@ class Chip8:
         """Turns the needsReDraw flag false"""
         self.needsReDraw = False
 
-    def get_print_opcode_flag():
-        return self._printOpcodeFlag
-
-
     def loadRom(self, romLocation):
-        """Loads rom into Memory"""
-        f = open(romLocation, 'r')
-        rom = f.read()
-        f.close()
-        rom = rom.replace('\n', ' ')
-        self.romSize = len(rom.split())
-        temp = ''
+        _file = open(romLocation, 'rb')
+        for line in _file:
+            for _char in line:
+                self.memory[self.pc]=_char
+                self.pc += 1
+                self.romSize += 1
+        _file.close()
+        self.pc = 0x200
 
-        for idx, x in enumerate(range(0x200,(0x200 + self.romSize))):
-            self.memory[x] = int(rom.split()[idx], 16)
 
 
 
@@ -503,8 +477,8 @@ def Main():
     #     z += 1
     # for x in chip8.get_display():
     #     print(x)
-    chip8.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/Maze.ch8')
-    for x in range(chip8.romSize):
+    chip8.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/MAZE')
+    for x in range(0x200, 4096, 2):
         chip8.run()
         # chip8.incrementPC(2)
     #for x in chip8.stack:

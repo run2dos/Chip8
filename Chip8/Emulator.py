@@ -15,7 +15,7 @@ from time import sleep
 
 class Main(threading.Thread):
     def __init__(self):
-        romName = 'MAZE.ch8'
+        romName = 'MAZE'
         self.chip = Chip8()
         self.display = TextDisplay(self.chip)
         self.chip.loadRom('/Volumes/Macintosh HD/Users/HGHRLLR/Python/projects/Chip8/rom/' + romName)
